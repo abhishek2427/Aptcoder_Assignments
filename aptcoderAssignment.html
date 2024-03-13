@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+</head>
+<body>
+
+<div id="app">
+  <h1>To-Do List</h1>
+
+  <!-- Input to add new task -->
+  <input type="text" v-model="newTask" @keyup.enter="addTask" placeholder="Add new task">
+
+  <!-- Display open tasks -->
+  <h2>Open Tasks:</h2>
+  <ul>
+    <li v-for="(task, index) in openTasks" :key="index">
+      {{ task.text }} - Created on: {{ task.created }}
+      <input type="checkbox" v-model="task.completed"> Done
+      <button @click="removeTask(index)">Remove</button>
+    </li>
+  </ul>
+ <!-- Display completed tasks -->
+  <h2>Completed Tasks:</h2>
+  <ul>
+    <li v-for="(task, index) in completedTasks" :key="index">
+      {{ task.text }} - Completed on: {{ task.completed }} - Created on: {{ task.created }}
+    </li>
+  </ul>
+</div>
+
+<script>
+new Vue({
+  el: '#app',
+  data: {
+    newTask: '',
+    tasks: []
+  },
+  mounted() {
+    this.retrieveTasks();
+  },
+  methods: {
+    addTask() {
+      if (this.newTask.trim() !== '') {
+    const task = {
+          text: this.newTask,
+          completed: false,
+          created: new Date().toLocaleString()
+        };
+        this.tasks.push(task);
+        this.saveTasks();
+        this.newTask = '';
+      }
+    },
+    removeTask(index) {
+      this.tasks.splice(index, 1);
+      this.saveTasks();
+    },
+    saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(this.tasks));
+    },
+    retrieveTasks() {
+      const savedTasks = localStorage.getItem('tasks');
+      if (savedTasks) {
+        this.tasks = JSON.parse(savedTasks);
+      }
+    }
+  },
+  computed: {
+    openTasks() {
+  return this.tasks.filter(task => !task.completed);
+    },
+    completedTasks() {
+      return this.tasks.filter(task => task.completed);
+    }
+  }
+});
+</script>
+
+</body>
+</html>
